@@ -13,8 +13,8 @@
 
 //using namespace yarp::os;
 
-class ReqsMng : public yarp::os::Thread {
-public:
+class ReqsMng : public yarp::os::Thread
+{
     int CNT;
     // Since we can't define references or classes in the class definition
     // the next tre objects are defined as pointers that will be initialized
@@ -26,7 +26,11 @@ public:
     yarp::os::Bottle        cmd;
     yarp::os::Bottle        response;
 
+public:
+
     ReqsMng();
+
+    ~ReqsMng();
 
     bool start(yarp::os::Semaphore &smph, std::vector<int> &stk, yarp::os::RpcServer &prt, int &cnt);
 
@@ -35,6 +39,8 @@ public:
     virtual void run();
 
     virtual void threadRelease();
+
+    virtual void close();
 
 private:
     yarp::os::Bottle returnPair();
@@ -53,10 +59,6 @@ public:
     bool start(yarp::os::Semaphore &smph, std::vector<int> &stk);
 
     virtual bool threadInit();
-
-    //called by start after threadInit, s is true iff the thread started
-    //successfully
-    virtual void afterStart(bool s);
 
     virtual void run();
 

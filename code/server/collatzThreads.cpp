@@ -7,6 +7,11 @@ ReqsMng::ReqsMng()
     :Thread()
 {
     CNT = 1;
+    cmd.addInt(0);
+}
+ReqsMng::~ReqsMng()
+{
+    port = 0;
 }
 // The objects are passed by reference to not fetch copies;
 // we then deeference the object themselves to feed the memory
@@ -32,13 +37,15 @@ bool ReqsMng::threadInit()
 void ReqsMng::run()
 {
     while (!isStopping()) {
+        //printf("Before %s\n", isStopping() ? "true" : "false");
         port->read(cmd,true);
-        //getchar();
+        //printf("After %s\n", isStopping() ? "true" : "false");
         // Client is requesting a number to test
         if ((cmd.get(1).isInt()) && (cmd.get(1).asInt() == 0))
         {
             printf("Client #%d sent a request for a number\n", cmd.get(0).asInt());
             response = returnPair();
+            port->reply(response);
         }
         // Client is telling that cmd.get(0) satisfies collatz conj
         else if ((cmd.get(1).isInt()) && (cmd.get(1).asInt() > 0))
@@ -48,18 +55,28 @@ void ReqsMng::run()
             printf("Client #%d asserted that number %d converges\n", id, N);
             removeNumber(N);
             response = Bottle("0 0");
+            port->reply(response);
         }
-        //else yError() << "ReqMng: The number given by the client is negative\n";
-        port->reply(response);
+        else if (cmd.get(0) == 0)
+        {
+            break;
+        }
+
     }
 }
 void ReqsMng::threadRelease()
 {
     printf("Goodbye from request manager\n");
 }
+
+void ReqsMng::close()
+{
+    printf("Closing Request Manager\n");
+}
+
 Bottle ReqsMng::returnPair()
 {
-    if (semph->waitWithTimeout(10))
+    if (semph->waitWithTimeout(1))
     {
         Bottle b;
         CNT += 1;
@@ -77,7 +94,7 @@ Bottle ReqsMng::returnPair()
 }
 void ReqsMng::removeNumber(int t)
 {
-    if (semph->waitWithTimeout(10))
+    if (semph->waitWithTimeout(1))
     {
         //yDebug () << "Removing number " << t << " from the stack\n";
         for ( vector<int>::iterator iterator = stack->begin(); iterator != stack->end(); ++iterator)
@@ -113,13 +130,6 @@ bool StackMng::threadInit()
 {
     printf("Starting stack manager\n");
     return true;
-}
-void StackMng::afterStart(bool s)
-{
-    if (s)
-        printf("stack manager started successfully\n");
-    else
-        printf("stack manager did not start\n");
 }
 void StackMng::run()
 {

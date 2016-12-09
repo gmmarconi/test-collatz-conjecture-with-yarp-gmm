@@ -1,5 +1,6 @@
 #include "collatzClient.h"
 #include <yarp/os/Time.h>
+#include <yarp/os/Log.h>
 #include <climits>
 
 using namespace std;
@@ -13,7 +14,6 @@ collatzClient::collatzClient()
     period    = 0.01;
     client_id = 0;
 }
-
 double collatzClient::getPeriod()
 {
     // module periodicity (seconds), called implicitly by the module.
@@ -64,6 +64,7 @@ bool collatzClient::configure(yarp::os::ResourceFinder &rf)
     else
     {
         name = ConstString("/collatzC").c_str();
+        //printf("Client standard port: \"%s\"\n", name.c_str(x));
     }
     ConstString server_name;
     if (rf.check("server_name"))
@@ -82,6 +83,7 @@ bool collatzClient::configure(yarp::os::ResourceFinder &rf)
     {
         period = 0.01;
     }
+    if (!yarp.checkNetwork()) { yError("unable to find YARP server!"); return false; }
     port.open(name);
     if(rf.check("auto-connect") && rf.find("auto-connect").asBool() == true )
     {
@@ -92,10 +94,10 @@ bool collatzClient::configure(yarp::os::ResourceFinder &rf)
     }
     else
     {
-        while(port.getInputCount() == 0)
+        while(port.getOutputCount() == 0)
         {
             printf("Client waiting to be connected to a server\n");
-            Time::delay(1);
+            Time::delay(10);
             // waits to be connected
         }
     }
@@ -109,7 +111,8 @@ bool collatzClient::configure(yarp::os::ResourceFinder &rf)
 }
 bool collatzClient::interruptModule()
 {
-    cout  << "Interrupting your module, for port cleanup" << endl;
+    printf("Interrupting client\n");
+    //close();
     return true;
 }
 bool collatzClient::close()

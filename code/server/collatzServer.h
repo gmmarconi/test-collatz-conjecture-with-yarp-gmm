@@ -8,9 +8,9 @@
 
 class collatzServer:public yarp::os::RFModule
 {
-    int count;
-    int secs;
-    int CNT;
+    int  count;
+    int  secs;
+    int  CNT;
     std::vector<int>        stack;
     StackMng                sManager;
     ReqsMng                 rManager;

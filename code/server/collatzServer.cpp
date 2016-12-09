@@ -7,19 +7,17 @@ using namespace yarp::os;
 double collatzServer::getPeriod()
 {
     // module periodicity (seconds), called implicitly by the module.
-    return 60;
+    return 1;
 }
 bool collatzServer::updateModule()
 {
-    //count++;
-    //cout << "[" << count << "]" << " updateModule..." << endl;
     return true;
 }
 bool collatzServer::configure(yarp::os::ResourceFinder &rf)
 {
-    cout << "Configuring server...\n";
-    count = 0;
-    CNT   = 1;
+    printf("Configuring server...\n");
+    count     = 0;
+    CNT       = 1;
     semph.post();
     ConstString name;
     if ( rf.check("name") )
@@ -31,7 +29,6 @@ bool collatzServer::configure(yarp::os::ResourceFinder &rf)
         name = "/collatzS";
     }
     port.open(name);
-    printf("Server listening on port %s\n", name.c_str());
     bool ok = sManager.setRate(10000);
     ok = sManager.start(semph, stack);
     ok = ok && rManager.start(semph, stack, port, CNT);
@@ -44,21 +41,16 @@ bool collatzServer::configure(yarp::os::ResourceFinder &rf)
 }
 bool collatzServer::interruptModule()
 {
-    cout  << "Interrupting your module, for port cleanup" << endl;
+    printf("Closing Server\n");
     return true;
 }
 bool collatzServer::close()
 {
-    // optional, close port explicitly
-    cout << "Calling close function\n";
-    //
+    printf("Calling close function\n");
     sManager.stop();
-    yDebug() << "Closed sManager\n";
+    //printf("bleep\n");
     rManager.stop();
-    yDebug() << "Closed rManager\n";
+    //printf("blop\n");
     port.close();
-    yDebug() << "Closed RPC Server\n";
-    //
-    //handlerPort.close();
     return true;
 }
