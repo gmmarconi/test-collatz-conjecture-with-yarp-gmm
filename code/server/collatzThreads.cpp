@@ -8,13 +8,15 @@ ReqsMng::ReqsMng()
 {
     CNT = 1;
 }
-// The objects are passed by reference to not fetch copies
-// then we deeference the object themselves to feed the memory
+// The objects are passed by reference to not fetch copies;
+// we then deeference the object themselves to feed the memory
 // address to the pointers
 // This is done because we can't define references or classes
 // in the class definition, both should be istantiated upon creation and
 // this is not possible
-bool ReqsMng::start(Semaphore& smph, vector<int> &stk, RpcServer &prt, int &cnt)
+// The pass-by-reference operator is private (unaccessible) for RPC Servers
+// in YARP, so we get the pointer
+bool ReqsMng::start(Semaphore &smph, vector<int> &stk, RpcServer &prt, int &cnt)
 {
     CNT   = cnt;
     semph = &smph;
@@ -24,24 +26,31 @@ bool ReqsMng::start(Semaphore& smph, vector<int> &stk, RpcServer &prt, int &cnt)
 }
 bool ReqsMng::threadInit()
 {
-    printf("Starting request manager, /collatz-server port opened\n");
+    printf("Starting request manager, collatz-server port opened\n");
     return true;
 }
 void ReqsMng::run()
 {
     while (!isStopping()) {
         port->read(cmd,true);
-        if (!cmd.get(1).isInt()) yError() << "ReqsMng: The client didn't send a proper bottle with a number\n";
+        //getchar();
         // Client is requesting a number to test
-        if (cmd.get(1).asInt() == 0)    response = returnPair();
-        // Client is telling that cmd.get(0) satisfies collatz conj
-        else if (cmd.get(1).asInt() > 0)
+        if ((cmd.get(1).isInt()) && (cmd.get(1).asInt() == 0))
         {
-            removeNumber(cmd.get(0).asInt());
-            response = Bottle("0");
+            printf("Client #%d sent a request for a number\n", cmd.get(0).asInt());
+            response = returnPair();
         }
-        else yError() << "ReqMng: The number given by the client is negative\n";
-        port->write(response);
+        // Client is telling that cmd.get(0) satisfies collatz conj
+        else if ((cmd.get(1).isInt()) && (cmd.get(1).asInt() > 0))
+        {
+            int id = cmd.get(0).asInt();
+            int N  = cmd.get(1).asInt();
+            printf("Client #%d asserted that number %d converges\n", id, N);
+            removeNumber(N);
+            response = Bottle("0 0");
+        }
+        //else yError() << "ReqMng: The number given by the client is negative\n";
+        port->reply(response);
     }
 }
 void ReqsMng::threadRelease()
@@ -56,7 +65,7 @@ Bottle ReqsMng::returnPair()
         CNT += 1;
         stack->push_back(CNT);
         b.addInt(CNT);
-        b.addInt(stack->front());
+        b.addInt((stack->front()) - 1);
         semph->post();
         return b;
     }
@@ -70,12 +79,13 @@ void ReqsMng::removeNumber(int t)
 {
     if (semph->waitWithTimeout(10))
     {
+        //yDebug () << "Removing number " << t << " from the stack\n";
         for ( vector<int>::iterator iterator = stack->begin(); iterator != stack->end(); ++iterator)
         {
             if  (*iterator == t)
             {
                 stack->erase(iterator);
-                iterator = stack->end();
+                break;
             }
         }
         semph->post();
@@ -87,7 +97,9 @@ void ReqsMng::removeNumber(int t)
     }
 }
 
+///--------------------------///
 /// --- StackMng methods --- ///
+///--------------------------///
 
 StackMng::StackMng(int r):RateThread(r){}
 
@@ -114,10 +126,9 @@ void StackMng::run()
     if (semph->waitWithTimeout(1))
     {
         int j = 0;
-        printf("Inside Stack check\n");
         for (vector<int>::const_iterator iterator = stack->begin(), end = stack->end(); iterator != end; ++iterator, ++j)
         {
-            printf("Element #%d of the stack: %d\n", j, *iterator);
+            printf("Element #%d of the stack: %d\n", j+1, *iterator);
         }
         semph->post();
     }

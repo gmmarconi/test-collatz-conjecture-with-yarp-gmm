@@ -16,6 +16,9 @@
 class ReqsMng : public yarp::os::Thread {
 public:
     int CNT;
+    // Since we can't define references or classes in the class definition
+    // the next tre objects are defined as pointers that will be initialized
+    // with the addresses of the respective objects
     yarp::os::Semaphore*    semph;
     std::vector<int>*       stack;
     yarp::os::RpcServer*    port;

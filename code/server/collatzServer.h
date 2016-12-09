@@ -15,30 +15,22 @@ class collatzServer:public yarp::os::RFModule
     StackMng                sManager;
     ReqsMng                 rManager;
     yarp::os::Semaphore     semph;
-    yarp::os::RpcServer               port;
+    yarp::os::RpcServer     port;
+    yarp::os::Network       yarp;
+
 public:
-    collatzServer() {}
-    ~collatzServer() {}
+
+    collatzServer(){}
+
+    ~collatzServer(){}
+
     double getPeriod();
 
     // This is our main function. Will be called periodically every getPeriod() seconds
     bool updateModule();
 
-    // Message handler. Just echo all received messages.
-    // bool respond(const Bottle& command, Bottle& reply)
-    // {
-    //     cout << "Got something, echo is on" << endl;
-    //     if (command.get(0).asString() == "quit")
-    //         return false;
-    //     else
-    //         reply = command;
-    //     return true;
-    // }
-
     // Configure function. Receive a previously initialized
-    // resource finder object. Use it to configure your module.
-    // If you are migrating from the old module, this is the function
-    // equivalent to the "open" method.
+    // resource finder object.
     bool configure(yarp::os::ResourceFinder &rf);
 
     // Interrupt function.
