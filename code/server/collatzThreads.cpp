@@ -66,11 +66,13 @@ void ReqsMng::run()
 }
 void ReqsMng::threadRelease()
 {
+    if (port->asPort().isOpen()) port->close();
     printf("Goodbye from request manager\n");
 }
 
 void ReqsMng::close()
 {
+    if (port->asPort().isOpen()) port->close();
     printf("Closing Request Manager\n");
 }
 

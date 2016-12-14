@@ -1,8 +1,6 @@
 # Copyright: (C) 2010 RobotCub Consortium
 # CopyPolicy: Released under the terms of the LGPLv2.1 or later, see LGPL.TXT
 project(collatz-server)
-set(PROJECT_NAME collatz-server)
-project(${PROJECT_NAME})
 # YARP needs CMake 2.8.9 or greater
 cmake_minimum_required(VERSION 2.8.9)
 # find YARP

@@ -57,31 +57,16 @@ bool collatzClient::configure(yarp::os::ResourceFinder &rf)
 {
     cout << "Configuring client...\n";
     ConstString name;
-    if (rf.check("name"))
-    {
-        name = rf.find("name").asString().c_str();
-    }
-    else
-    {
-        name = ConstString("/collatzC").c_str();
-        //printf("Client standard port: \"%s\"\n", name.c_str(x));
-    }
+    name = rf.check("name", Value("/collatzC"), "Getting Client port name").asString();
     ConstString server_name;
-    if (rf.check("server_name"))
-    {
-        server_name = rf.find("server_name").asString().c_str();
-    }
-    else
-    {
-        server_name = ConstString("/collatzS").c_str();
-    }
+    server_name = rf.check("server_name", Value("/collatzS"), "Getting Server port name").asString();
     if (rf.check("period"))
     {
         period = rf.find("period").asInt();
     }
     else
     {
-        period = 0.01;
+        period = 0.5;
     }
     if (!yarp.checkNetwork()) { yError("unable to find YARP server!"); return false; }
     port.open(name);
@@ -112,12 +97,12 @@ bool collatzClient::configure(yarp::os::ResourceFinder &rf)
 bool collatzClient::interruptModule()
 {
     printf("Interrupting client\n");
-    //close();
+    if (port.asPort().isOpen()) port.interrupt();
     return true;
 }
 bool collatzClient::close()
 {
-    port.close();
+    if (port.asPort().isOpen()) port.close(); // always check if a port is open before closing it
     printf("Closed RPC Server\n");
     return true;
 }

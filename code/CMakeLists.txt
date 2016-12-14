@@ -3,8 +3,6 @@
 cmake_minimum_required(VERSION 2.8.9)
 # YARP needs CMake 2.8.9 or greater
 project(collatz-conjecture)
-set(PROJECT_NAME collatz-conjecture)
-project(${PROJECT_NAME})
 # find YARP
 find_package(YARP REQUIRED)
 # add YARP include directories
