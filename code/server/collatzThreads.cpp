@@ -57,9 +57,9 @@ void ReqsMng::run()
             response = Bottle("0 0");
             port->reply(response);
         }
-        else if (cmd.get(0) == 0)
+        else if (cmd.get(0).asInt() == 0)
         {
-            break;
+            continue;
         }
 
     }
@@ -135,6 +135,7 @@ bool StackMng::threadInit()
 }
 void StackMng::run()
 {
+    yDebug("bleep\n");
     if (semph->waitWithTimeout(1))
     {
         int j = 0;
@@ -143,6 +144,7 @@ void StackMng::run()
             printf("Element #%d of the stack: %d\n", j+1, *iterator);
         }
         semph->post();
+        yDebug("blop\n");
     }
 }
 void StackMng::threadRelease()

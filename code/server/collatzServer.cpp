@@ -41,16 +41,15 @@ bool collatzServer::configure(yarp::os::ResourceFinder &rf)
 }
 bool collatzServer::interruptModule()
 {
+    if (port.asPort().isOpen()) port.interrupt();
     printf("Closing Server\n");
     return true;
 }
 bool collatzServer::close()
 {
-    printf("Calling close function\n");
-    sManager.stop();
-    //printf("bleep\n");
-    rManager.stop();
-    //printf("blop\n");
-    port.close();
+     printf("Calling close function\n");
+    if (sManager.isRunning()) sManager.askToStop();
+    if (rManager.isRunning()) rManager.stop();
+    if (port.asPort().isOpen()) port.close();
     return true;
 }

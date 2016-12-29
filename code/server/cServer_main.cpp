@@ -13,5 +13,6 @@ int main(int argc, char * argv[])
     yarp::os::ResourceFinder rf;
     rf.configure(argc, argv);
     rf.setVerbose(true);
-    return  Serv.runModule(rf);   // This calls configure(rf) and, upon success, the module execution begins with a call to updateModule();
+    Serv.runModule(rf);   // This calls configure(rf) and, upon success, the module execution begins with a call to updateModule();
+    return 1;
 }
